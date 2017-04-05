@@ -8,18 +8,32 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import com.auth0.android.jwt.Claim;
+import com.auth0.android.jwt.JWT;
 
 public class MainActivity extends AppCompatActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_auth);
     }
 
+    public void authentication(View v) {
+        /*JWT parsedJWT = new JWT("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ");
+        Claim subscriptionMetaData = parsedJWT.getClaim("sub");
+        String parsedValue = subscriptionMetaData.asString();*/
 
+        EditText txtPhone   = (EditText) findViewById(R.id.txtPhone);
+        EditText txtPass   = (EditText) findViewById(R.id.txtPass);
+        Log.d("Auth", "Login, phone:"+txtPhone.getText().toString() + " pass:"+txtPass.getText().toString() /*+ " token:"+parsedValue*/);
+
+    }
 
     //product barcode mode
     public void scanBar(View v) {
