@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.auth0.android.jwt.Claim;
@@ -59,10 +60,11 @@ public class MainActivity extends AppCompatActivity {
             String Response = postLogin(txtPhone, txtPass);
             Log.d("TTGD", "Response:" + Response);
             setContentView(R.layout.activity_main);
+            TextView tv = (TextView)findViewById(R.id.textUser);
+            tv.setText("Hello, "+txtPhone.getText().toString());
             Toast.makeText(this, "Login Success" + Response, Toast.LENGTH_LONG).show();
         } catch (Exception ex) {
             ex.printStackTrace();
-            ;
             Toast.makeText(this, "URL Exception", Toast.LENGTH_LONG).show();
         }
 
@@ -183,5 +185,9 @@ public class MainActivity extends AppCompatActivity {
                 toast.show();
             }
         }
+    }
+
+    public String sendDataAfterScan(){
+        return "";
     }
 }
