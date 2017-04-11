@@ -47,6 +47,7 @@ import java.net.URLEncoder;
 public class MainActivity extends AppCompatActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     static final String LOG_D = "TTGD";
+    protected String __token = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,18 +58,10 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-
-        /*TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        String identifier = getDeviceID(telephonyManager);
-        */
     }
 
 
     public void authentication(View v) {
-        /*JWT parsedJWT = new JWT("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ");
-        Claim subscriptionMetaData = parsedJWT.getClaim("sub");
-        String parsedValue = subscriptionMetaData.asString();*/
-
         EditText txtPhone = (EditText) findViewById(R.id.txtPhone);
         EditText txtPass = (EditText) findViewById(R.id.txtPass);
         Log.d(LOG_D, "Login >> phone:" + txtPhone.getText().toString() + " pass:" + txtPass.getText().toString());
@@ -83,17 +76,15 @@ public class MainActivity extends AppCompatActivity {
 
                 TextView tv = (TextView) findViewById(R.id.textUser);
                 tv.setText("Hello, " + txtPhone.getText().toString());
+                __token = jObject.getString("access_token");
 
-                double[] locations = getLocation();
-//                String Lat = Double.toString(locations[0]);
-//                String Long = Double.toString(locations[1]);
-//                System.out.println("Double is " + locations);
-//                TextView tv2 = (TextView) findViewById(R.id.textView2);
-//                tv2.setText("Location: Long-" + Long +"Lat-"+Lat);
+                /*JWT parsedJWT = new JWT(__token);
+                Claim subscriptionMetaData = parsedJWT.getClaim("sub");
+                String parsedValue = subscriptionMetaData.asString();*/
 
-                Toast.makeText(this, "Login Success" + jObject.getString("access_token"), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.login_success /*+ jObject.getString("access_token")*/, Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "Login Fail, please check data input again", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.login_fail, Toast.LENGTH_LONG).show();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -117,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
             data += "&" + URLEncoder.encode("client_secret", "UTF-8") + "=" + "t6uDNcVtNYY0kj4Z5PuNWthRrwyMKmlF5SUIXzxG";
             data += "&" + URLEncoder.encode("scope", "UTF-8") + "=" + "*";
             Log.d(LOG_D, "Data:" + data);
-//            URL url = new URL("http://dev.metvuong.com/api/login");
-            URL url = new URL("http://dev.metvuong.com/oauth/token");
+//            URL url = new URL("http://qrcode.metvuong.com/api/login");
+            URL url = new URL("http://qrcode.metvuong.com/oauth/token");
             // Send POST data request
             connection = (HttpURLConnection) url.openConnection();
             connection.setReadTimeout(10000);
@@ -243,7 +234,9 @@ public class MainActivity extends AppCompatActivity {
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 String textResult = "Content:" + qrData + " Format:" + format;
                 String Response = sendDataAfterScan(qrData);
-                Toast toast = Toast.makeText(this, textResult, Toast.LENGTH_LONG);
+                Log.d(LOG_D, "Response:" + Response);
+                Log.d(LOG_D, "QR:" + qrData);
+                Toast toast = Toast.makeText(this, R.string.scan_success, Toast.LENGTH_LONG);
                 toast.show();
             }
         }
@@ -252,28 +245,42 @@ public class MainActivity extends AppCompatActivity {
 
 
     public String sendDataAfterScan(String qrData){
-        double[] locations = getLocation();
-        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjBkNjUwYmZmMzg4NTRjZDZiYWIwNGUzZTQ4MmE3MThiMTVmYjU5OWRiYTU3ZWZmNGJmZmZhOWVjMzM5MDU5YWU4ODRlOTI2MmE3YThjZjhiIn0.eyJhdWQiOiIxIiwianRpIjoiMGQ2NTBiZmYzODg1NGNkNmJhYjA0ZTNlNDgyYTcxOGIxNWZiNTk5ZGJhNTdlZmY0YmZmZmE5ZWMzMzkwNTlhZTg4NGU5MjYyYTdhOGNmOGIiLCJpYXQiOjE0OTE4MDAyMjYsIm5iZiI6MTQ5MTgwMDIyNiwiZXhwIjoxNTIzMzM2MjI2LCJzdWIiOiIxIiwic2NvcGVzIjpbIioiXX0.mlaEpHEZiPEavN74yQmBZ0wQyka3FnzqpCg9sxfLGVHpbI1Uf2yR-5ABkZq5bvgDUAB7lkTvVnmbRY0LJspnNBNRNsLSm_4q3TOkxKtTu3hLI5L0fJ8r2yDR3xr3Zv8W6iQ25jEYyVnVrWVRikndGsjjMP6hPmkMUjC3jpYRBSlIz8xEcJo0282-srDE_AgmWI58pIlLalTfjJoVGrSMRmjOfNSi5LRRPRKMrrnMGlExwpupIuuTroixAaC11JwkZwibXGzKjruG19RswbYzOCkHOovX19JU2K0ZamY6JEKRMRKnOP_8wTZmISUubxKFrixq4DDdu4x6NNuBu23HAN8xGfUaPo8OjFLBcCCHYkTZDfy7xMk0jGTnC79NYziIHLYMJ1ETh9bG29G3IkMGKpmDAM3YNina9jrQ1iSJOCamKWIDwaudAWDiz4aP4B4Nxi6kip_iO959Gc-d8tll00bvTMLw9KpgZxnOv8UZV7-MaX53_jGkYtiXMSRpl64TREkD-hquojDtUkdylZnuNHx_ahIFx3qcECrX4RY0SgtZXNd0vPZX9lt-yBrOpXBIWrw71AKMFqA8H7G8HqfQneHbyKD6gwqfr-jgcRmKD25S09v4JZ3M1d5XCiPXSxjo9Tp9_cehF-ZWaGT6XmxvuAOr_OMqHKIt6ImQRz3mick";
+        String _qrCodeId = null;
+        if (qrData != null) {
+            try {
+                JSONObject qrDataObject = new JSONObject(qrData);
+                Log.d(LOG_D, "qrDataObject:" + qrDataObject);
+                _qrCodeId = qrDataObject.getString("id");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+//        double[] locations = getLocation();
+        Log.d(LOG_D, "Token:" + __token);
+        String _location = "Nguyễn Trung Ngạn";
+        String _long = "106.698387";
+        String _lat = "10.767238";
         String imei = getDeviceID();
+
         try {
             HttpURLConnection connection = null;
-            String data = URLEncoder.encode("lat", "UTF-8") + "=" + locations[0];
-            data += "&" + URLEncoder.encode("long", "UTF-8") + "=" + locations[1];
-            data += "&" + URLEncoder.encode("imei", "UTF-8") + "=" + URLEncoder.encode(imei, "UTF-8");
-            data += "&" + URLEncoder.encode("qrData", "UTF-8") + "=" + URLEncoder.encode(qrData, "UTF-8");
+            String data = URLEncoder.encode("qr_code_id", "UTF-8") + "=" + _qrCodeId;
+            data += "&" + URLEncoder.encode("location", "UTF-8") + "=" + URLEncoder.encode(_location, "UTF-8");
+            data += "&" + URLEncoder.encode("lat", "UTF-8") + "=" + _lat;
+            data += "&" + URLEncoder.encode("lng", "UTF-8") + "=" + _long;
+            data += "&" + URLEncoder.encode("phone_id", "UTF-8") + "=" + URLEncoder.encode(imei, "UTF-8");
             Log.d(LOG_D, "Data:" + data);
-            URL url = new URL("http://dev.metvuong.com/api/login");
-            String encodedAuth="Bearer "+token;
+            URL url = new URL("http://qrcode.metvuong.com/api/attendance");
+            String encodedAuth="Bearer "+__token;
             // Send POST data request
             connection = (HttpURLConnection) url.openConnection();
-//            connection.setRequestProperty("Authorization", encodedAuth);
+            connection.setRequestProperty("Authorization", encodedAuth);
             connection.setReadTimeout(10000);
             connection.setConnectTimeout(15000);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded");
-            connection.setRequestProperty("Content-Length", "" +
-                    Integer.toString(data.getBytes().length));
+//            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Content-Length", "" + Integer.toString(data.getBytes().length));
             connection.setRequestProperty("Content-Language", "en-US");
             connection.setUseCaches(false);
             connection.setDoInput(true);
@@ -286,21 +293,28 @@ public class MainActivity extends AppCompatActivity {
             wr.writeBytes(data);
             wr.flush();
             wr.close();
-
-            // Get the server response
-            InputStream is = connection.getInputStream();
-            Log.d(LOG_D, "InputStream:" + is);
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            Log.d(LOG_D, "BufferedReader:" + rd);
-            String line;
-            StringBuffer response = new StringBuffer();
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
+            String  response = null;
+            try {
+                InputStream in = new BufferedInputStream(connection.getInputStream());
+                response = convertStreamToString(in);
+            } catch (MalformedURLException e) {
+                Log.e(LOG_D, "MalformedURLException: " + e.getMessage());
+                return null;
+            } catch (ProtocolException e) {
+                Log.e(LOG_D, "ProtocolException: " + e.getMessage());
+                return null;
+            } catch (IOException e) {
+                Log.e(LOG_D, "IOException: " + e.getMessage());
+                return null;
+            } catch (Exception e) {
+                Log.e(LOG_D, "Exception: " + e.getMessage());
+                return null;
             }
-            rd.close();
-            return rd.toString();
-        } catch (Exception e) {
+            return response;
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }catch (Exception e) {
             e.printStackTrace();
             return null;
         }

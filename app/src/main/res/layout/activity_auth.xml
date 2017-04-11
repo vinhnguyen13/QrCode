@@ -14,20 +14,36 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center|top"
         android:layout_margin="20dp"
-        android:text="Login"
+        android:text="Login Form"
         android:textColor="@android:color/background_light"
         android:textSize="30dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:text="Username"
+        android:textColor="@android:color/background_light" />
 
     <EditText
         android:id="@+id/txtPhone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Phone"
+        android:hint="Username"
         android:text="0909123456"
         android:inputType="textNoSuggestions"
         android:textColor="@android:color/background_light"
         android:textColorHint="@android:color/background_light" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:text="Password"
+        android:textColor="@android:color/background_light" />
 
     <EditText
         android:id="@+id/txtPass"

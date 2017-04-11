@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">QrCode</string>
+    <string name="app_name">TTG</string>
+    <string name="login_success">Đăng nhập thành công</string>
+    <string name="login_fail">Lỗi đăng nhập! Bạn kiểm tra lại dữ liệu nhập vào !</string>
+    <string name="scan_success">Cảm ơn bạn !</string>
 </resources>
