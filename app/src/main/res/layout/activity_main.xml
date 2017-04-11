@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center|top"
         android:layout_margin="20dp"
-        android:text="You can perform barcode scanning with 2 button below"
+        android:text="@string/desFormScan"
         android:textColor="@android:color/background_light" />
 
     <Button

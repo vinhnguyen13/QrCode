@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,7 +47,7 @@ import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-    static final String LOG_D = "TTGD";
+    static final String LOG_D = "TTGDEBUG";
     protected String __token = null;
 
     @Override
@@ -60,27 +61,43 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Authentication
+     * @param v
+     */
     public void authentication(View v) {
-        EditText txtPhone = (EditText) findViewById(R.id.txtPhone);
+        /*JWT parsedJWT = new JWT(__token);
+        Claim subscriptionMetaData = parsedJWT.getClaim("sub");
+        String parsedValue = subscriptionMetaData.asString();*/
+
+        EditText txtUsername = (EditText) findViewById(R.id.txtUsername);
         EditText txtPass = (EditText) findViewById(R.id.txtPass);
-        Log.d(LOG_D, "Login >> phone:" + txtPhone.getText().toString() + " pass:" + txtPass.getText().toString());
+        Log.d(LOG_D, "Login >> phone:" + txtUsername.getText().toString() + " pass:" + txtPass.getText().toString());
         try {
             // CALL GetText method to make post method call
-            String Response = postLogin(txtPhone, txtPass);
+            String Response = postLogin(txtUsername, txtPass);
             Log.d(LOG_D, "Response:" + Response);
             if (Response != null){
                 JSONObject jObject = new JSONObject(Response);
                 Log.d(LOG_D, "jObject:" + jObject);
+
+                __token = jObject.getString("access_token");
+                Log.d(LOG_D, "__token:" + __token);
+
+                String UserInfoJson = userInfo();
+                Log.d(LOG_D, "UserInfo:" + UserInfoJson);
+
+                String Fullname = txtUsername.getText().toString();
+                if(UserInfoJson != null){
+                    JSONObject UserInfo = new JSONObject(UserInfoJson);
+                    Fullname = UserInfo.getString("name");
+                }
+
+                hideSoftKeyboard();
                 setContentView(R.layout.activity_main);
 
                 TextView tv = (TextView) findViewById(R.id.textUser);
-                tv.setText("Hello, " + txtPhone.getText().toString());
-                __token = jObject.getString("access_token");
-
-                /*JWT parsedJWT = new JWT(__token);
-                Claim subscriptionMetaData = parsedJWT.getClaim("sub");
-                String parsedValue = subscriptionMetaData.asString();*/
+                tv.setText("Hello, " + Fullname);
 
                 Toast.makeText(this, R.string.login_success /*+ jObject.getString("access_token")*/, Toast.LENGTH_LONG).show();
             } else {
@@ -91,88 +108,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Error: "+ex.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-    }
-
-    /**
-     * Post data login to service
-     */
-    public String postLogin(EditText txtPhone, EditText txtPass) {
-        HttpURLConnection connection = null;
-        String Phone = txtPhone.getText().toString();
-        String Pass = txtPass.getText().toString();
-        try {
-            String data = URLEncoder.encode("username", "UTF-8") + "=" + URLEncoder.encode(Phone, "UTF-8");
-            data += "&" + URLEncoder.encode("password", "UTF-8") + "=" + URLEncoder.encode(Pass, "UTF-8");
-            data += "&" + URLEncoder.encode("grant_type", "UTF-8") + "=" + "password";
-            data += "&" + URLEncoder.encode("client_id", "UTF-8") + "=" + "1";
-            data += "&" + URLEncoder.encode("client_secret", "UTF-8") + "=" + "t6uDNcVtNYY0kj4Z5PuNWthRrwyMKmlF5SUIXzxG";
-            data += "&" + URLEncoder.encode("scope", "UTF-8") + "=" + "*";
-            Log.d(LOG_D, "Data:" + data);
-//            URL url = new URL("http://qrcode.metvuong.com/api/login");
-            URL url = new URL("http://qrcode.metvuong.com/oauth/token");
-            // Send POST data request
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("Content-Length", "" + Integer.toString(data.getBytes().length));
-            connection.setRequestProperty("Content-Language", "en-US");
-            connection.setUseCaches(false);
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            Log.d(LOG_D, "Connection:" + connection);
-            //send request
-            DataOutputStream wr = new DataOutputStream(
-                    connection.getOutputStream());
-            wr.writeBytes(data);
-            wr.flush();
-            wr.close();
-            String  response = null;
-            try {
-                InputStream in = new BufferedInputStream(connection.getInputStream());
-                response = convertStreamToString(in);
-            } catch (MalformedURLException e) {
-                Log.e(LOG_D, "MalformedURLException: " + e.getMessage());
-                return null;
-            } catch (ProtocolException e) {
-                Log.e(LOG_D, "ProtocolException: " + e.getMessage());
-                return null;
-            } catch (IOException e) {
-                Log.e(LOG_D, "IOException: " + e.getMessage());
-                return null;
-            } catch (Exception e) {
-                Log.e(LOG_D, "Exception: " + e.getMessage());
-                return null;
-            }
-            return response;
-        }catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private String convertStreamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line).append('\n');
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
     }
 
     //product barcode mode
@@ -242,6 +177,141 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Hide keyboard
+     */
+    public void hideSoftKeyboard() {
+        if(getCurrentFocus()!=null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+    }
+    /**
+     * Get user infomation
+     * @return
+     */
+    public String userInfo() {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL("http://qrcode.metvuong.com/api/user");
+            // Send POST data request
+            String encodedAuth="Bearer "+__token;
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(15000);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", encodedAuth);
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Content-Length", "");
+            connection.setRequestProperty("Content-Language", "en-US");
+            Log.d(LOG_D, "Connection:" + connection);
+            String  response = null;
+            try {
+                InputStream in = new BufferedInputStream(connection.getInputStream());
+                response = convertStreamToString(in);
+            } catch (MalformedURLException e) {
+                Log.e(LOG_D, "MalformedURLException: " + e.getMessage());
+                return null;
+            } catch (ProtocolException e) {
+                Log.e(LOG_D, "ProtocolException: " + e.getMessage());
+                return null;
+            } catch (IOException e) {
+                Log.e(LOG_D, "IOException: " + e.getMessage());
+                return null;
+            } catch (Exception e) {
+                Log.e(LOG_D, "Exception: " + e.getMessage());
+                return null;
+            }
+            return response;
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Post data login to service
+     */
+    public String postLogin(EditText txtUsername, EditText txtPass) {
+        HttpURLConnection connection = null;
+        String Phone = txtUsername.getText().toString();
+        String Pass = txtPass.getText().toString();
+        try {
+            String data = URLEncoder.encode("username", "UTF-8") + "=" + URLEncoder.encode(Phone, "UTF-8");
+            data += "&" + URLEncoder.encode("password", "UTF-8") + "=" + URLEncoder.encode(Pass, "UTF-8");
+            data += "&" + URLEncoder.encode("grant_type", "UTF-8") + "=" + "password";
+            data += "&" + URLEncoder.encode("client_id", "UTF-8") + "=" + "1";
+            data += "&" + URLEncoder.encode("client_secret", "UTF-8") + "=" + "t6uDNcVtNYY0kj4Z5PuNWthRrwyMKmlF5SUIXzxG";
+            data += "&" + URLEncoder.encode("scope", "UTF-8") + "=" + "*";
+            Log.d(LOG_D, "Data:" + data);
+            URL url = new URL("http://qrcode.metvuong.com/oauth/token");
+            // Send POST data request
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(15000);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Content-Length", "" + Integer.toString(data.getBytes().length));
+            connection.setRequestProperty("Content-Language", "en-US");
+            connection.setUseCaches(false);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            Log.d(LOG_D, "Connection:" + connection);
+            //send request
+            DataOutputStream wr = new DataOutputStream(
+                    connection.getOutputStream());
+            wr.writeBytes(data);
+            wr.flush();
+            wr.close();
+            String  response = null;
+            try {
+                InputStream in = new BufferedInputStream(connection.getInputStream());
+                response = convertStreamToString(in);
+            } catch (MalformedURLException e) {
+                Log.e(LOG_D, "MalformedURLException: " + e.getMessage());
+                return null;
+            } catch (ProtocolException e) {
+                Log.e(LOG_D, "ProtocolException: " + e.getMessage());
+                return null;
+            } catch (IOException e) {
+                Log.e(LOG_D, "IOException: " + e.getMessage());
+                return null;
+            } catch (Exception e) {
+                Log.e(LOG_D, "Exception: " + e.getMessage());
+                return null;
+            }
+            return response;
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String convertStreamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+    }
 
 
     public String sendDataAfterScan(String qrData){
@@ -265,12 +335,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             HttpURLConnection connection = null;
             String data = URLEncoder.encode("qr_code_id", "UTF-8") + "=" + _qrCodeId;
-            data += "&" + URLEncoder.encode("location", "UTF-8") + "=" + URLEncoder.encode(_location, "UTF-8");
-            data += "&" + URLEncoder.encode("lat", "UTF-8") + "=" + _lat;
-            data += "&" + URLEncoder.encode("lng", "UTF-8") + "=" + _long;
             data += "&" + URLEncoder.encode("phone_id", "UTF-8") + "=" + URLEncoder.encode(imei, "UTF-8");
             Log.d(LOG_D, "Data:" + data);
-            URL url = new URL("http://qrcode.metvuong.com/api/attendance");
+            URL url = new URL("http://qrcode.metvuong.com/api/qrcode");
             String encodedAuth="Bearer "+__token;
             // Send POST data request
             connection = (HttpURLConnection) url.openConnection();

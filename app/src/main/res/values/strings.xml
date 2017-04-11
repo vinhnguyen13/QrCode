@@ -3,4 +3,7 @@
     <string name="login_success">Đăng nhập thành công</string>
     <string name="login_fail">Lỗi đăng nhập! Bạn kiểm tra lại dữ liệu nhập vào !</string>
     <string name="scan_success">Cảm ơn bạn !</string>
+    <string name="txtBtnLogin">Gửi</string>
+    <string name="txtFormLogin">Đăng nhập</string>
+    <string name="desFormScan">Bạn có thể quét mã vạch với nút 2 bên dưới</string>
 </resources>
