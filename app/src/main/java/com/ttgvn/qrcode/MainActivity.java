@@ -205,10 +205,11 @@ public class MainActivity extends AppCompatActivity {
             connection.setRequestProperty("Content-Length", "");
             connection.setRequestProperty("Content-Language", "en-US");
             Log.d(LOG_D, "Connection:" + connection);
-            String  response = null;
+            String  response = "";
             try {
                 InputStream in = new BufferedInputStream(connection.getInputStream());
                 response = convertStreamToString(in);
+                return response;
             } catch (MalformedURLException e) {
                 Log.e(LOG_D, "MalformedURLException: " + e.getMessage());
                 return null;
@@ -222,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_D, "Exception: " + e.getMessage());
                 return null;
             }
-            return response;
         }catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -327,9 +327,6 @@ public class MainActivity extends AppCompatActivity {
         }
 //        double[] locations = getLocation();
         Log.d(LOG_D, "Token:" + __token);
-        String _location = "Nguyễn Trung Ngạn";
-        String _long = "106.698387";
-        String _lat = "10.767238";
         String imei = getDeviceID();
 
         try {
