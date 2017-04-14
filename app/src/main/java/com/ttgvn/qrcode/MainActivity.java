@@ -50,6 +50,11 @@ public class MainActivity extends AppCompatActivity {
     static final String LOG_D = "TTGDEBUG";
     protected String __token = null;
 
+    static final int TYPE_ATTENDANCE = 1;
+    static final int TYPE_ORDERING_SUPPLIES = 2;
+    static final int TYPE_DOCUMENTS = 3;
+    static final int TYPE_IT_EQUIPMENT = 4;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
