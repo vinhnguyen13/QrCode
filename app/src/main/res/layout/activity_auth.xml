@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
@@ -65,18 +65,28 @@
                 android:text="123456"
                 android:textColor="@android:color/background_light"
                 android:textColorHint="@android:color/background_light" />
-
-            <Button
-                android:id="@+id/submit"
-                android:layout_width="90dp"
-                android:layout_height="60dp"
-                android:layout_gravity="center"
-                android:layout_margin="10dp"
-                android:gravity="center"
-                android:onClick="authentication"
-                android:text="@string/txtBtnLogin"
-                android:textSize="18dp"></Button>
         </LinearLayout>
 
     </ScrollView>
-</LinearLayout>
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/LinearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="90dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:onClick="authentication"
+            android:text="@string/txtBtnLogin"
+            android:textSize="18dp"></Button>
+
+    </LinearLayout>
+</RelativeLayout>
